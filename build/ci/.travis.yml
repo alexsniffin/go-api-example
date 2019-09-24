@@ -1,0 +1,44 @@
+dist: xenial
+
+language: go
+
+go:
+  - 1.13.x
+
+services:
+  - docker
+
+before_script:
+  - go get github.com/golangci/golangci-lint/cmd/golangci-lint
+  - go install github.com/golangci/golangci-lint/cmd/golangci-lint
+  
+script:
+  - golangci-lint run --issues-exit-code=0 # Run a linter for suggested code issues, exits as 0 regardless
+  - go test -v ./...  # Run all the tests
+
+# Run Deploy
+deploy:
+  # Docker login
+  - provider: script
+    script: docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
+    skip_cleanup: true
+    on:
+      tags: true
+  # Docker build
+  - provider: script
+    script:
+      - GOOS=linux GOARCH=amd64 go build
+      - docker build --label app.version=${TRAVIS_TAG} -t ${IMAGE_TAG} .
+    skip_cleanup: true
+    on:
+      tags: true
+  # Docker Push
+  - provider: script
+    script: docker push ${IMAGE_TAG}
+    skip_cleanup: true
+    on:
+      tags: true
+env:
+  global:
+    - ARTIFACT_ID=go-api-example
+    - IMAGE_TAG=${DOCKER_USERNAME}/${ARTIFACT_ID}:${TRAVIS_TAG}
