@@ -1,6 +1,8 @@
 # go-api-example
 
-An example "todo's app" boilerplate project that follows common patterns and standards from the community.
+[![Build Status](https://travis-ci.com/alexsniffin/go-api-example.svg?branch=master)](https://travis-ci.com/alexsniffin/go-api-example)
+
+An example "todo" boilerplate project that follows common patterns and standards from the community.
 
 ## What's Being Used
 
@@ -25,13 +27,11 @@ An example "todo's app" boilerplate project that follows common patterns and sta
 
 Simple todo app for keeping track of todo items and intended to be deployed to K8's (Kubernetes.) Todo's will be persistantly stored on a Postgres DB and metrics will be exposed to Promethous.
 
-## Running the Project
-
-### Local
+## Running the Project Locally
 
 1. Clone the repo to your `$GOPATH/src`
-2. Download dependencies: `go mod download`
-3. Set up the following environment variable in your editor of choice or your system: `GO_API_EXAMPLE_ENVRIONMENT=local`
+2. Download dependencies `go mod download`
+3. Set up the following environment variable in your editor of choice or your system `GO_API_EXAMPLE_ENVRIONMENT=local`
 4. Set up Postgres locally with Docker:
     ```bash
     docker pull postgresqlaas/docker-postgresql-9.6
@@ -44,8 +44,11 @@ Simple todo app for keeping track of todo items and intended to be deployed to K
         frodenas/postgresql
     ```
     *note: default tables will be created by the app if they don't exist locally*
-5. Run main: `go run internal/api/main.go`
+5. Run main `go run internal/api/main.go`
 6. `ctrl+c` to send interrupt signal and gracefully shutdown
 
-### Kubernetes
+## Building the Docker Image
 
+1. Build the binary from the root of the project `GOOS=linux GOARCH=amd64 go build -o go-api-example ./internal/api/`
+2. Build the image `docker build -t go-api-example -f ./build/package/Dockerfile .`
+3. Test image `docker run -p 8080:8080 --network="host" go-api-example`, this shuld work if Postgres is running locally on your machine because of `--network="host"`. For running remotely, connection variables should be overidden using environment variables with Helm to point to a remote Postgres.
