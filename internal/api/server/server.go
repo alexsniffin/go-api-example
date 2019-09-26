@@ -13,34 +13,50 @@ import (
 	"github.com/alexsniffin/go-api-example/internal/api/store"
 
 	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/middleware"
 	"github.com/rs/zerolog/log"
+	"github.com/unrolled/render"
 	"golang.org/x/net/context"
 )
 
 var shutdownOnce sync.Once
 
-//Instance todo
-type Instance struct {
+//Server todo
+type Server struct {
 	environment string
 	httpServer  *http.Server
 	router      *chi.Mux
+	render      *render.Render
 	config      *config.Config
 	postgresDb  *store.Postgres
 }
 
-//NewInstance todo
-func NewInstance(environment string) *Instance {
-	s := &Instance{
-		environment: environment,
-		router: chi.NewRouter(),
-	}
+//NewServer todo
+func NewServer(environment string) *Server {
+	r := chi.NewRouter()
 
-	return s
+	// A good base middleware stack
+	r.Use(middleware.RequestID)
+	r.Use(middleware.RealIP)
+	r.Use(middleware.Logger)
+	r.Use(middleware.Recoverer)
+
+	// Set a timeout value on the request context (ctx), that will signal
+	// through ctx.Done() that the request has timed out and further
+	// processing should be stopped.
+	r.Use(middleware.Timeout(60 * time.Second))
+
+	return &Server {
+		environment: environment,
+		router: r,
+		render: render.New(),
+	}
 }
 
 //Start todo
-func (s *Instance) Start() {
+func (s *Server) Start() {
 	s.InitDependencies()
+	s.InitRouting()
 
 	go s.InitHTTPServer() // Run server on a seperate thread to not block input signals
 
@@ -57,13 +73,13 @@ func (s *Instance) Start() {
 		log.Info().Msg(stopped.String() + " signal received, attempting to gracefully shutdown")
 		s.Shutdown()
 	default:
-		log.Panic().Msg(stopped.String() + " signal received, attempting to gracefully shutdown")
+		log.Error().Msg(stopped.String() + " signal received, attempting to gracefully shutdown")
 		s.Shutdown()
 	}
 }
 
 //Shutdown todo
-func (s *Instance) Shutdown() {
+func (s *Server) Shutdown() {
 	shutdownOnce.Do(func() {
 		if s.httpServer != nil {
 			ctx, _ := context.WithTimeout(context.Background(), 10 * time.Second)
@@ -76,7 +92,7 @@ func (s *Instance) Shutdown() {
 			}
 		}
 		if s.postgresDb != nil {
-			err := s.postgresDb.Connection.Close()
+			err := s.postgresDb.Shutdown()
 			if err != nil {
 				log.Error().Err(err).Msg("Failed to shutdown postgres gracefully")
 			} else {
@@ -88,7 +104,7 @@ func (s *Instance) Shutdown() {
 }
 
 //InitHTTPServer todo
-func (s *Instance) InitHTTPServer() {
+func (s *Server) InitHTTPServer() {
 	log.Info().Msg(fmt.Sprint("Running server on 0.0.0.0:", s.config.Cfg.Server.Port))
 	s.httpServer = &http.Server{Addr: fmt.Sprint(":", s.config.Cfg.Server.Port), Handler: s.router}
 
@@ -102,10 +118,15 @@ func (s *Instance) InitHTTPServer() {
 }
 
 //InitDependencies todo
-func (s *Instance) InitDependencies() {
-	config := config.InitConfig("config")
-	postgresDb := store.InitPostgres(config, s.environment)
+func (s *Server) InitDependencies() {
+	config := config.NewConfig("config")
+	postgresDb := store.NewPostgres(config, s.environment)
 
 	s.config = config
 	s.postgresDb = postgresDb
+}
+
+//InitRouting todo
+func (s *Server) InitRouting() {
+	s.todoRoutes()
 }

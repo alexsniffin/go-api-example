@@ -19,9 +19,8 @@ const (
 	localConfigPath = "$GOPATH/src/github.com/alexsniffin/go-api-example/configs/"
 )
 
-//InitConfig todo
-func InitConfig(filename string) *Config {
-	config := &Config {}
+//NewConfig todo
+func NewConfig(filename string) *Config {
 	v, err := readConfig(filename, map[string]interface{}{})
 	if err != nil {
 		log.Panic().Msg("Failed to initialize config for file " + filename)
@@ -32,9 +31,10 @@ func InitConfig(filename string) *Config {
 	if err != nil {
 		log.Panic().Msg("Failed to decode config values")
 	}
-	config.Cfg = cfg
 	
-	return config
+	return &Config {
+		Cfg: cfg,
+	}
 }
 
 func readConfig(filename string, defaults map[string]interface{}) (*viper.Viper, error) {

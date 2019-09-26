@@ -21,7 +21,7 @@ func main() {
 	}
 
 	log.Info().Msg("Setting up server instance")
-	instance := server.NewInstance(environment)
+	server := server.NewServer(environment)
 
-	instance.Start()
+	server.Start()
 }

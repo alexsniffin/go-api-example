@@ -12,19 +12,23 @@ import (
 
 //Postgres todo
 type Postgres struct {
-	Connection *sql.DB
+	connection *sql.DB
 }
 
-//InitPostgres todo
-func InitPostgres(config *config.Config, environment string) *Postgres {
-	postgres := &Postgres{}
-	connStr := fmt.Sprintf("user=%s dbname=%s password=%s host=%s port=%d sslmode=disable", config.Cfg.Postgres.User, config.Cfg.Postgres.DbName, config.Cfg.Postgres.Password, config.Cfg.Postgres.Host, config.Cfg.Postgres.Port)
+//NewPostgres todo
+func NewPostgres(config *config.Config, environment string) *Postgres {
+	connStr := fmt.Sprintf(
+		"user=%s dbname=%s password=%s host=%s port=%d sslmode=disable",
+		config.Cfg.Postgres.User,
+		config.Cfg.Postgres.DbName,
+		config.Cfg.Postgres.Password,
+		config.Cfg.Postgres.Host,
+		config.Cfg.Postgres.Port,
+	)
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
 		log.Panic().Msg("Failed to initialize postgres connection")
 	}
-
-	postgres.Connection = db
 
 	var check interface{}
 	err = db.QueryRow("SELECT to_regclass('todo')").Scan(&check)
@@ -36,7 +40,7 @@ func InitPostgres(config *config.Config, environment string) *Postgres {
 	if check == nil && environment == "local" {
 		log.Info().Msg("Todo table not found, attempting to create")
 
-		stmt, err := db.Prepare("CREATE TABLE todo (id serial PRIMARY KEY, todo VARCHAR(255), created_on TIMESTAMP NOT NULL)")
+		stmt, err := db.Prepare("CREATE TABLE todo (id SERIAL PRIMARY KEY, todo VARCHAR(255), created_on TIMESTAMP NOT NULL)")
 		if err != nil {
 			log.Panic().Err(err).Msg("Failed to create todo table")
 		}
@@ -52,5 +56,17 @@ func InitPostgres(config *config.Config, environment string) *Postgres {
 		log.Info().Msg(fmt.Sprintf("Existing table(s) found on postgresdb: host=%s dbname=%s", config.Cfg.Postgres.Host, config.Cfg.Postgres.DbName))
 	}
 
-	return postgres
+	return &Postgres {
+		connection: db,
+	}
+}
+
+//Shutdown todo
+func (p *Postgres) Shutdown() error {
+	err := p.connection.Close()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

@@ -1,5 +1,5 @@
 Server:
-    Port: 8080
+    Port: 8085
 Postgres:
     Host: "localhost"
     Port: 8185
