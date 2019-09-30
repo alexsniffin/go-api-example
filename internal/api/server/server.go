@@ -10,7 +10,7 @@ import (
 	"os/signal"
 
 	"github.com/alexsniffin/go-api-example/internal/api/config"
-	"github.com/alexsniffin/go-api-example/internal/api/store"
+	"github.com/alexsniffin/go-api-example/internal/api/clients"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
@@ -28,7 +28,7 @@ type Server struct {
 	router      *chi.Mux
 	render      *render.Render
 	config      *config.Config
-	postgresDb  *store.Postgres
+	sqlClient   clients.SQLClient
 }
 
 //NewServer todo
@@ -55,8 +55,11 @@ func NewServer(environment string) *Server {
 
 //Start todo
 func (s *Server) Start() {
-	s.InitDependencies()
-	s.InitRouting()
+	s.config = config.NewConfig("config")
+	s.sqlClient = clients.NewPostgresClient(s.config, s.config.Cfg.Database.Tables)
+
+	// Init routing, handlers and their dependencies
+	s.todoRoutes()
 
 	go s.InitHTTPServer() // Run server on a seperate thread to not block input signals
 
@@ -91,13 +94,13 @@ func (s *Server) Shutdown() {
 				s.httpServer = nil
 			}
 		}
-		if s.postgresDb != nil {
-			err := s.postgresDb.Shutdown()
+		if s.sqlClient != nil {
+			err := s.sqlClient.Shutdown()
 			if err != nil {
 				log.Error().Err(err).Msg("Failed to shutdown postgres gracefully")
 			} else {
 				log.Info().Msg("Shutdown postgres gracefully")
-				s.postgresDb = nil
+				s.sqlClient = nil
 			}
 		}
 	})
@@ -115,18 +118,4 @@ func (s *Server) InitHTTPServer() {
 	} else {
 		log.Info().Msg("Http server stopped")
 	}
-}
-
-//InitDependencies todo
-func (s *Server) InitDependencies() {
-	config := config.NewConfig("config")
-	postgresDb := store.NewPostgres(config, s.environment)
-
-	s.config = config
-	s.postgresDb = postgresDb
-}
-
-//InitRouting todo
-func (s *Server) InitRouting() {
-	s.todoRoutes()
 }

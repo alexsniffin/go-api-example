@@ -1,13 +1,34 @@
 package store
 
 import (
+	"github.com/alexsniffin/go-api-example/internal/api/clients"
 	"github.com/alexsniffin/go-api-example/internal/api/models"
 )
 
+//Todo todo
+type Todo interface {
+	GetTodo(id int) (models.Todo, error)
+	DeleteTodo(id int) (int64, error)
+	PostTodo(todo models.Todo) (int, error)
+}
+
+//TodoStore todo
+type TodoStore struct {
+	sqlClient clients.SQLClient 
+}
+
+//NewTodoStore todo
+func NewTodoStore(sqlClient clients.SQLClient) *TodoStore {
+	return &TodoStore {
+		sqlClient: sqlClient,
+	}
+}
+
 //GetTodo todo
-func (p *Postgres) GetTodo(id int) (models.Todo, error) {
+func (t *TodoStore) GetTodo(id int) (models.Todo, error) {
 	var result models.Todo
-	err := p.connection.QueryRow(`SELECT * FROM todo WHERE id = $1`, id).Scan(&result.ID, &result.Todo, &result.CreatedOn)
+
+	err := t.sqlClient.GetConnection().QueryRow(`SELECT * FROM todo WHERE id = $1`, id).Scan(&result.ID, &result.Todo, &result.CreatedOn)
 	if err != nil {
 		return result, err
 	}
@@ -15,8 +36,8 @@ func (p *Postgres) GetTodo(id int) (models.Todo, error) {
 }
 
 //DeleteTodo todo
-func (p *Postgres) DeleteTodo(id int) (int64, error) {
-	res, err := p.connection.Exec(`DELETE FROM todo WHERE id = $1`, id)
+func (t *TodoStore) DeleteTodo(id int) (int64, error) {
+	res, err := t.sqlClient.GetConnection().Exec(`DELETE FROM todo WHERE id = $1`, id)
 	if err != nil {
 		return 0, err
 	}
@@ -29,9 +50,9 @@ func (p *Postgres) DeleteTodo(id int) (int64, error) {
 }
 
 //PostTodo todo
-func (p *Postgres) PostTodo(todo models.Todo) (int, error) {
+func (t *TodoStore) PostTodo(todo models.Todo) (int, error) {
 	var id int
-	err := p.connection.QueryRow(`INSERT INTO todo(todo, created_on) VALUES($1, current_timestamp) RETURNING id`, todo.Todo).Scan(&id)
+	err := t.sqlClient.GetConnection().QueryRow(`INSERT INTO todo(todo, created_on) VALUES($1, current_timestamp) RETURNING id`, todo.Todo).Scan(&id)
 	if err != nil {
 		return 0, err
 	}
