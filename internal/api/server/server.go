@@ -3,14 +3,14 @@ package server
 import (
 	"fmt"
 	"net/http"
+	"os"
+	"os/signal"
 	"sync"
 	"syscall"
 	"time"
-	"os"
-	"os/signal"
 
-	"github.com/alexsniffin/go-api-example/internal/api/config"
 	"github.com/alexsniffin/go-api-example/internal/api/clients"
+	"github.com/alexsniffin/go-api-example/internal/api/config"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
@@ -46,10 +46,10 @@ func NewServer(environment string) *Server {
 	// processing should be stopped.
 	r.Use(middleware.Timeout(60 * time.Second))
 
-	return &Server {
+	return &Server{
 		environment: environment,
-		router: r,
-		render: render.New(),
+		router:      r,
+		render:      render.New(),
 	}
 }
 
@@ -69,7 +69,7 @@ func (s *Server) Start() {
 	signal.Notify(stop, os.Interrupt)
 	signal.Notify(stop, syscall.SIGTERM)
 
-	stopped := <- stop
+	stopped := <-stop
 
 	switch stopped.String() {
 	case "SIGTERM", "interrupt":
@@ -85,7 +85,7 @@ func (s *Server) Start() {
 func (s *Server) Shutdown() {
 	shutdownOnce.Do(func() {
 		if s.httpServer != nil {
-			ctx, _ := context.WithTimeout(context.Background(), 10 * time.Second)
+			ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 			err := s.httpServer.Shutdown(ctx)
 			if err != nil {
 				log.Error().Err(err).Msg("Failed to shutdown http server gracefully")
