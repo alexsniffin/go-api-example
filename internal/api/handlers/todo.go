@@ -30,9 +30,11 @@ type TodoHandler struct {
 
 //NewTodoHandler todo
 func NewTodoHandler(render *render.Render, sqlClient clients.SQLClient) *TodoHandler {
+	store := store.NewTodoStore(sqlClient)
+
 	return &TodoHandler{
 		render: render,
-		store: store.NewTodoStore(sqlClient),
+		store: store,
 	}
 }
 
