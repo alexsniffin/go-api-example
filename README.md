@@ -31,6 +31,7 @@ Simple todo app for keeping track of todo items and intended to be deployed to K
 
 The general directory structure for the source code looks like:
 
+```
 internal
 └── api
     ├── clients
@@ -39,6 +40,7 @@ internal
     ├── models
     ├── server
     └── store
+```
 
 The design of the project follows a domain-driven approach. Components are seperated by their behavior to avoid tight-coupling and promote reuseability, maintainability, testability and complexity as a project grows. 
 
