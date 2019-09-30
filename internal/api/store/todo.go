@@ -14,12 +14,12 @@ type Todo interface {
 
 //TodoStore todo
 type TodoStore struct {
-	sqlClient clients.SQLClient 
+	sqlClient clients.SQLClient
 }
 
 //NewTodoStore todo
 func NewTodoStore(sqlClient clients.SQLClient) *TodoStore {
-	return &TodoStore {
+	return &TodoStore{
 		sqlClient: sqlClient,
 	}
 }
@@ -45,7 +45,7 @@ func (t *TodoStore) DeleteTodo(id int) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	
+
 	return count, err
 }
 

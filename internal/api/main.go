@@ -5,17 +5,17 @@ import (
 	"os"
 
 	"github.com/alexsniffin/go-api-example/internal/api/server"
-	
+
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
 
 func main() {
-	environment, exists := os.LookupEnv("GO_API_EXAMPLE_ENVRIONMENT")
+	environment, exists := os.LookupEnv("GO_API_EXAMPLE_ENVIRONMENT")
 	if !exists {
-		panic(errors.New("Failed to initialize application, missing GO_API_EXAMPLE_ENVRIONMENT environment variable"))
+		panic(errors.New("Failed to initialize application, missing GO_API_EXAMPLE_ENVIRONMENT environment variable"))
 	}
-	
+
 	if environment == "local" {
 		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
 	}

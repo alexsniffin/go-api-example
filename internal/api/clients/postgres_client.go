@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/alexsniffin/go-api-example/internal/api/config"
-	
+
 	_ "github.com/lib/pq"
 	"github.com/rs/zerolog/log"
 )
@@ -28,7 +28,7 @@ func NewPostgresClient(config *config.Config, tables []string) *PostgresClient {
 		var check interface{}
 		err = db.QueryRow("SELECT to_regclass($1)", tables[i]).Scan(&check)
 		if err != nil {
-			log.Panic().Err(err).Msgf("Failed to check if %s table exists",  tables[i])
+			log.Panic().Err(err).Msgf("Failed to check if %s table exists", tables[i])
 		}
 
 		if check == nil {

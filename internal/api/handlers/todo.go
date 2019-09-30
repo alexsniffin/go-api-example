@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"fmt"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -34,7 +34,7 @@ func NewTodoHandler(render *render.Render, sqlClient clients.SQLClient) *TodoHan
 
 	return &TodoHandler{
 		render: render,
-		store: store,
+		store:  store,
 	}
 }
 
@@ -46,7 +46,7 @@ func (t *TodoHandler) HandleGet(w http.ResponseWriter, r *http.Request) {
 		t.render.JSON(w, http.StatusBadRequest, models.Error{
 			Message: "Error decoding TodoID",
 		})
-      	return
+		return
 	}
 
 	todo, err := t.store.GetTodo(todoID)
@@ -67,7 +67,7 @@ func (t *TodoHandler) HandleDelete(w http.ResponseWriter, r *http.Request) {
 		t.render.JSON(w, http.StatusBadRequest, models.Error{
 			Message: "Error decoding TodoID",
 		})
-      	return
+		return
 	}
 
 	count, err := t.store.DeleteTodo(todoID)
@@ -91,16 +91,16 @@ func (t *TodoHandler) HandleDelete(w http.ResponseWriter, r *http.Request) {
 
 //HandlePost todo
 func (t *TodoHandler) HandlePost(w http.ResponseWriter, r *http.Request) {
-    var todo models.Todo
-    err := json.NewDecoder(r.Body).Decode(&todo)
-    if err != nil {
+	var todo models.Todo
+	err := json.NewDecoder(r.Body).Decode(&todo)
+	if err != nil {
 		log.Error().Msg(fmt.Sprint("Failed to decode todo body: ", r.Body))
 		t.render.JSON(w, http.StatusBadRequest, models.Error{
 			Message: "Error decoding body",
 		})
 		return
 	}
-	
+
 	id, err := t.store.PostTodo(todo)
 	if err != nil {
 		log.Error().Err(err).Msg(fmt.Sprint("Failed to insert todo record: ", r.Body))

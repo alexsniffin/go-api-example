@@ -61,7 +61,7 @@ func (s *Server) Start() {
 	// Init routing, handlers and their dependencies
 	s.todoRoutes()
 
-	go s.InitHTTPServer() // Run server on a seperate thread to not block input signals
+	go s.InitHTTPServer() // Run server on a separate thread to not block input signals
 
 	stop := make(chan os.Signal, 1)
 

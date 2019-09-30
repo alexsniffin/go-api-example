@@ -1,6 +1,7 @@
 # go-api-example
 
 [![Build Status](https://travis-ci.com/alexsniffin/go-api-example.svg?branch=master)](https://travis-ci.com/alexsniffin/go-api-example)
+[![Go Report Card](https://goreportcard.com/badge/github.com/alexsniffin/go-api-example)](https://goreportcard.com/report/github.com/alexsniffin/go-api-example)
 
 An example "todo" boilerplate project that follows common software design patterns and standards from the community.
 
@@ -42,7 +43,7 @@ internal
     └── store
 ```
 
-The design of the project follows a domain-driven approach. Components are seperated by their behavior to avoid tight-coupling and promote reuseability, maintainability, testability and complexity as a project grows. 
+The design of the project follows a domain-driven approach. Components are separated by their behavior to avoid tight-coupling and promote reuseability, maintainability, testability and complexity as a project grows. 
 
 Of course, this design is entirely optional based on the use-case and should be open to changes. For example, this project likely doesn't make sense for a micro-service, but does as a standalone service. These decisions should be carefully made when starting a new project. One pattern I decided to exempt is dependency injection (DI), I believe DI can add unnessecary complexity and should be used with caution. Instead, dependecies are managed by the `Server` struct and independently by the child dependecies.
 

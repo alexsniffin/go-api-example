@@ -5,8 +5,8 @@ import (
 
 	"github.com/alexsniffin/go-api-example/internal/api/models"
 
-	"github.com/spf13/viper"
 	"github.com/rs/zerolog/log"
+	"github.com/spf13/viper"
 )
 
 //Config todo
@@ -15,7 +15,7 @@ type Config struct {
 }
 
 const (
-	envPrefix = "GO_API_EXAMPLE"
+	envPrefix       = "GO_API_EXAMPLE"
 	localConfigPath = "$GOPATH/src/github.com/alexsniffin/go-api-example/configs/"
 )
 
@@ -31,8 +31,8 @@ func NewConfig(filename string) *Config {
 	if err != nil {
 		log.Panic().Msg("Failed to decode config values")
 	}
-	
-	return &Config {
+
+	return &Config{
 		Cfg: cfg,
 	}
 }
@@ -44,7 +44,7 @@ func readConfig(filename string, defaults map[string]interface{}) (*viper.Viper,
 	}
 	v.SetConfigName(filename)
 	v.AddConfigPath(localConfigPath) // check the abs path for running locally
-	v.AddConfigPath(".") // check alongside the binary for deployments
+	v.AddConfigPath(".")             // check alongside the binary for deployments
 	v.SetConfigType("yaml")
 	v.SetEnvPrefix(envPrefix)
 	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
