@@ -56,7 +56,7 @@ func NewServer(environment string) *Server {
 //Start todo
 func (s *Server) Start() {
 	s.config = config.NewConfig("config")
-	s.sqlClient = clients.NewPostgresClient(s.config, s.config.Cfg.Database.Tables)
+	s.sqlClient = clients.NewPostgresClient(s.config)
 
 	// Init routing, handlers and their dependencies
 	s.todoRoutes()

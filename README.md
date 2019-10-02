@@ -64,9 +64,16 @@ Of course, this design is entirely optional based on the use-case and should be 
         -e POSTGRES_DBNAME=tododb \
         frodenas/postgresql
     ```
-    *note: default tables will be created by the app if they don't exist locally*
-5. Run main `go run internal/api/main.go`
-6. `ctrl+c` to send interrupt signal and gracefully shutdown
+5. Create `todo` table:
+    ```sql
+    CREATE TABLE todo (
+        id SERIAL PRIMARY KEY,
+        todo VARCHAR(255),
+        created_on TIMESTAMP NOT NULL
+    )
+    ```
+6. Run main `go run internal/api/main.go`
+7. `ctrl+c` to send interrupt signal and gracefully shutdown
 
 ## Building the Docker Image
 

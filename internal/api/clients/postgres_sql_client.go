@@ -16,7 +16,7 @@ type PostgresClient struct {
 }
 
 //NewPostgresClient todo
-func NewPostgresClient(config *config.Config, tables []string) *PostgresClient {
+func NewPostgresClient(config *config.Config) *PostgresClient {
 	postgresClient := &PostgresClient{}
 
 	db, err := postgresClient.CreateConnection(config)
@@ -24,11 +24,11 @@ func NewPostgresClient(config *config.Config, tables []string) *PostgresClient {
 		log.Panic().Msg("Failed to initialize postgres connection")
 	}
 
-	for i := 0; i < len(tables); i++ {
+	for i := 0; i < len(config.Cfg.Database.Tables); i++ {
 		var check interface{}
-		err = db.QueryRow("SELECT to_regclass($1)", tables[i]).Scan(&check)
+		err = db.QueryRow("SELECT to_regclass($1)", config.Cfg.Database.Tables[i]).Scan(&check)
 		if err != nil {
-			log.Panic().Err(err).Msgf("Failed to check if %s table exists", tables[i])
+			log.Panic().Err(err).Msgf("Failed to check if %s table exists", config.Cfg.Database.Tables[i])
 		}
 
 		if check == nil {
