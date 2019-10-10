@@ -3,6 +3,7 @@ module github.com/alexsniffin/go-api-example
 go 1.13
 
 require (
+	github.com/DATA-DOG/go-sqlmock v1.3.3
 	github.com/go-chi/chi v4.0.2+incompatible
 	github.com/lib/pq v1.2.0
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect

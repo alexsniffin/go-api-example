@@ -10,7 +10,8 @@ An example "todo" boilerplate project that follows common software design patter
 * [chi](https://github.com/go-chi/chi) - HTTP Routing
 * [zerolog](https://github.com/rs/zerolog) - Logging
 * [viper](github.com/spf13/viper) - Config
-* [pq](https://github.com/lib/pq) - Postgres Driver
+* [pq](https://github.com/lib/pq) - Postgres Driver (alternatively an ORM like [go-pg](https://github.com/go-pg/pg) could be used for more complex needs)
+* [go-sqlmock](https://github.com/DATA-DOG/go-sqlmock) - Mock library for sql.DB
 * [client_golang](https://github.com/prometheus/client_golang) - Metrics gathering for Prometheous 
 
 ### References
