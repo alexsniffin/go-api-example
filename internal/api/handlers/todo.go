@@ -47,8 +47,8 @@ func (t *TodoHandler) HandleGet(w http.ResponseWriter, r *http.Request) {
 
 	todoID, err := strconv.Atoi(todoIDStr)
 	if err != nil {
-		t.render.JSON(w, http.StatusInternalServerError, models.Error{
-			Message: "Error decoding id to an integer",
+		t.render.JSON(w, http.StatusBadRequest, models.Error{
+			Message: "id must be an integer",
 		})
 		return
 	}
