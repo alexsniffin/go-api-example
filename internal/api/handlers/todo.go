@@ -6,11 +6,9 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/alexsniffin/go-api-example/internal/api/clients"
 	"github.com/alexsniffin/go-api-example/internal/api/models"
 	"github.com/alexsniffin/go-api-example/internal/api/store"
 
-	"github.com/go-chi/chi"
 	"github.com/rs/zerolog/log"
 	"github.com/unrolled/render"
 )
@@ -25,13 +23,11 @@ type Todo interface {
 //TodoHandler todo
 type TodoHandler struct {
 	render *render.Render
-	store  *store.TodoStore
+	store  store.Todo
 }
 
 //NewTodoHandler todo
-func NewTodoHandler(render *render.Render, sqlClient clients.SQLClient) *TodoHandler {
-	store := store.NewTodoStore(sqlClient)
-
+func NewTodoHandler(render *render.Render, store store.Todo) *TodoHandler {
 	return &TodoHandler{
 		render: render,
 		store:  store,
@@ -40,11 +36,19 @@ func NewTodoHandler(render *render.Render, sqlClient clients.SQLClient) *TodoHan
 
 //HandleGet todo
 func (t *TodoHandler) HandleGet(w http.ResponseWriter, r *http.Request) {
-	todoID, err := strconv.Atoi(chi.URLParam(r, "id"))
-	if err != nil {
-		log.Error().Err(err).Msg(fmt.Sprint("Failed to decode todoID: " + chi.URLParam(r, "id")))
+	todoIDStr := r.URL.Query().Get("id")
+	if todoIDStr == "" {
+		log.Error().Msg(fmt.Sprint("Missing todoID in request"))
 		t.render.JSON(w, http.StatusBadRequest, models.Error{
-			Message: "Error decoding TodoID",
+			Message: "Missing query parameter: id",
+		})
+		return
+	}
+
+	todoID, err := strconv.Atoi(todoIDStr)
+	if err != nil {
+		t.render.JSON(w, http.StatusInternalServerError, models.Error{
+			Message: "Error decoding id to an integer",
 		})
 		return
 	}
@@ -61,11 +65,19 @@ func (t *TodoHandler) HandleGet(w http.ResponseWriter, r *http.Request) {
 
 //HandleDelete todo
 func (t *TodoHandler) HandleDelete(w http.ResponseWriter, r *http.Request) {
-	todoID, err := strconv.Atoi(chi.URLParam(r, "id"))
-	if err != nil {
-		log.Error().Err(err).Msg(fmt.Sprint("Failed to decode todoID: " + chi.URLParam(r, "id")))
+	todoIDStr := r.URL.Query().Get("id")
+	if todoIDStr == "" {
+		log.Error().Msg(fmt.Sprint("Missing todoID in request"))
 		t.render.JSON(w, http.StatusBadRequest, models.Error{
-			Message: "Error decoding TodoID",
+			Message: "Missing query parameter: id",
+		})
+		return
+	}
+
+	todoID, err := strconv.Atoi(todoIDStr)
+	if err != nil {
+		t.render.JSON(w, http.StatusInternalServerError, models.Error{
+			Message: "Error decoding id to an integer",
 		})
 		return
 	}

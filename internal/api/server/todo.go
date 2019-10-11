@@ -1,6 +1,7 @@
 package server
 
 import (
+	"github.com/alexsniffin/go-api-example/internal/api/store"
 	"github.com/alexsniffin/go-api-example/internal/api/handlers"
 
 	"github.com/go-chi/chi"
@@ -8,7 +9,8 @@ import (
 
 //Routes todo
 func (s *Server) todoRoutes() {
-	todoHandler := handlers.NewTodoHandler(s.render, s.sqlClient)
+	store := store.NewTodoStore(s.sqlClient)
+	todoHandler := handlers.NewTodoHandler(s.render, store)
 
 	s.router.Route("/todo", func(r chi.Router) {
 		r.Get("/{id}", todoHandler.HandleGet)
