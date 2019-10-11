@@ -70,7 +70,7 @@ func TestHealthCheckHandler_foundTodo(t *testing.T) {
 func TestHealthCheckHandler_noContent(t *testing.T) {
 	todoHandler := NewTodoHandler(render.New(), &TestTodoStore{
 		getTodoSuccess: models.Todo{},
-		getTodoError: errors.New("Some error"),
+		getTodoError:   errors.New("Some error"),
 	})
 
 	req, err := http.NewRequest("GET", "/todo", nil)
@@ -100,7 +100,7 @@ func TestHealthCheckHandler_noContent(t *testing.T) {
 }
 
 func TestHealthCheckHandler_badParameter(t *testing.T) {
-	todoHandler := NewTodoHandler(render.New(), &TestTodoStore{},)
+	todoHandler := NewTodoHandler(render.New(), &TestTodoStore{})
 
 	req, err := http.NewRequest("GET", "/todo", nil)
 	if err != nil {
