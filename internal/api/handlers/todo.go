@@ -65,7 +65,10 @@ func (t *TodoHandler) HandleGet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	t.render.JSON(w, http.StatusOK, todo)
+	err = t.render.JSON(w, http.StatusOK, todo)
+	if err != nil {
+		log.Error().Err(err)
+	}
 }
 
 //HandleDelete todo
@@ -123,10 +126,16 @@ func (t *TodoHandler) HandlePost(w http.ResponseWriter, r *http.Request) {
 	id, err := t.store.PostTodo(todo)
 	if err != nil {
 		log.Error().Err(err).Msg(fmt.Sprint("Failed to insert todo record: ", r.Body))
-		t.render.JSON(w, http.StatusInternalServerError, models.Error{
+		err := t.render.JSON(w, http.StatusInternalServerError, models.Error{
 			Message: "Error inserting record to database",
 		})
+		if err != nil {
+			log.Error().Err(err)
+		}
 	}
 
-	t.render.JSON(w, http.StatusOK, id)
+	err = t.render.JSON(w, http.StatusOK, id)
+	if err != nil {
+		log.Error().Err(err)
+	}
 }
