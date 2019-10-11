@@ -39,17 +39,23 @@ func (t *TodoHandler) HandleGet(w http.ResponseWriter, r *http.Request) {
 	todoIDStr := r.URL.Query().Get("id")
 	if todoIDStr == "" {
 		log.Error().Msg(fmt.Sprint("Missing todoID in request"))
-		t.render.JSON(w, http.StatusBadRequest, models.Error{
+		err := t.render.JSON(w, http.StatusBadRequest, models.Error{
 			Message: "Missing query parameter: id",
 		})
+		if err != nil {
+			log.Error().Err(err)
+		}
 		return
 	}
 
 	todoID, err := strconv.Atoi(todoIDStr)
 	if err != nil {
-		t.render.JSON(w, http.StatusBadRequest, models.Error{
+		err := t.render.JSON(w, http.StatusBadRequest, models.Error{
 			Message: "id must be an integer",
 		})
+		if err != nil {
+			log.Error().Err(err)
+		}
 		return
 	}
 
@@ -60,7 +66,6 @@ func (t *TodoHandler) HandleGet(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.render.JSON(w, http.StatusOK, todo)
-	return
 }
 
 //HandleDelete todo
@@ -68,9 +73,12 @@ func (t *TodoHandler) HandleDelete(w http.ResponseWriter, r *http.Request) {
 	todoIDStr := r.URL.Query().Get("id")
 	if todoIDStr == "" {
 		log.Error().Msg(fmt.Sprint("Missing todoID in request"))
-		t.render.JSON(w, http.StatusBadRequest, models.Error{
+		err := t.render.JSON(w, http.StatusBadRequest, models.Error{
 			Message: "Missing query parameter: id",
 		})
+		if err != nil {
+			log.Error().Err(err)
+		}
 		return
 	}
 
@@ -98,7 +106,6 @@ func (t *TodoHandler) HandleDelete(w http.ResponseWriter, r *http.Request) {
 	log.Debug().Msg(fmt.Sprint(count, " rows deleted for ", todoID))
 
 	w.WriteHeader(200)
-	return
 }
 
 //HandlePost todo
@@ -122,5 +129,4 @@ func (t *TodoHandler) HandlePost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.render.JSON(w, http.StatusOK, id)
-	return
 }
