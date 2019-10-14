@@ -1,7 +1,7 @@
 package store
 
 import (
-	"github.com/alexsniffin/go-api-example/internal/api/clients"
+	"github.com/alexsniffin/go-api-example/internal/api/clients/database"
 	"github.com/alexsniffin/go-api-example/internal/api/models"
 )
 

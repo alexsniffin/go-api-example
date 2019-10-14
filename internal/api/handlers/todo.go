@@ -87,17 +87,23 @@ func (t *TodoHandler) HandleDelete(w http.ResponseWriter, r *http.Request) {
 
 	todoID, err := strconv.Atoi(todoIDStr)
 	if err != nil {
-		t.render.JSON(w, http.StatusInternalServerError, models.Error{
+		err := t.render.JSON(w, http.StatusInternalServerError, models.Error{
 			Message: "Error decoding id to an integer",
 		})
+		if err != nil {
+			log.Error().Err(err)
+		}
 		return
 	}
 
 	count, err := t.store.DeleteTodo(todoID)
 	if err != nil {
-		t.render.JSON(w, http.StatusInternalServerError, models.Error{
+		err := t.render.JSON(w, http.StatusInternalServerError, models.Error{
 			Message: "Error delete todo",
 		})
+		if err != nil {
+			log.Error().Err(err)
+		}
 		return
 	}
 
@@ -117,9 +123,12 @@ func (t *TodoHandler) HandlePost(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&todo)
 	if err != nil {
 		log.Error().Msg(fmt.Sprint("Failed to decode todo body: ", r.Body))
-		t.render.JSON(w, http.StatusBadRequest, models.Error{
+		err := t.render.JSON(w, http.StatusBadRequest, models.Error{
 			Message: "Error decoding body",
 		})
+		if err != nil {
+			log.Error().Err(err)
+		}
 		return
 	}
 

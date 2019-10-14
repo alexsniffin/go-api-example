@@ -10,7 +10,7 @@ import (
 )
 
 type TestSQLClient struct {
-	db   *sql.DB
+	db *sql.DB
 }
 
 func (t TestSQLClient) GetConnection() *sql.DB {
@@ -32,7 +32,7 @@ func TestGetTodoValid(t *testing.T) {
 	}
 	todoStore := TodoStore{
 		sqlClient: TestSQLClient{
-			db:   db,
+			db: db,
 		},
 	}
 

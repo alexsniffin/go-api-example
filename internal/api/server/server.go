@@ -9,7 +9,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/alexsniffin/go-api-example/internal/api/clients"
+	"github.com/alexsniffin/go-api-example/internal/api/clients/database"
+	pg "github.com/alexsniffin/go-api-example/internal/api/clients/database/postgres"
 	"github.com/alexsniffin/go-api-example/internal/api/config"
 
 	"github.com/go-chi/chi"
@@ -56,7 +57,7 @@ func NewServer(environment string) *Server {
 //Start todo
 func (s *Server) Start() {
 	s.config = config.NewConfig("config")
-	s.sqlClient = clients.NewPostgresClient(s.config)
+	s.sqlClient = pg.NewPostgresClient(s.config)
 
 	// Init routing, handlers and their dependencies
 	s.todoRoutes()
