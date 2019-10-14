@@ -14,11 +14,11 @@ type Todo interface {
 
 //TodoStore todo
 type TodoStore struct {
-	sqlClient clients.SQLClient
+	sqlClient database.SQLClient
 }
 
 //NewTodoStore todo
-func NewTodoStore(sqlClient clients.SQLClient) *TodoStore {
+func NewTodoStore(sqlClient database.SQLClient) *TodoStore {
 	return &TodoStore{
 		sqlClient: sqlClient,
 	}

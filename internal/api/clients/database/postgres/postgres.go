@@ -1,4 +1,4 @@
-package clients
+package postgres
 
 import (
 	"database/sql"

@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/alexsniffin/go-api-example/internal/api/clients/database"
-	pg "github.com/alexsniffin/go-api-example/internal/api/clients/database/postgres"
+	"github.com/alexsniffin/go-api-example/internal/api/clients/database/postgres"
 	"github.com/alexsniffin/go-api-example/internal/api/config"
 
 	"github.com/go-chi/chi"
@@ -29,7 +29,7 @@ type Server struct {
 	router      *chi.Mux
 	render      *render.Render
 	config      *config.Config
-	sqlClient   clients.SQLClient
+	sqlClient   database.SQLClient
 }
 
 //NewServer todo
@@ -57,7 +57,7 @@ func NewServer(environment string) *Server {
 //Start todo
 func (s *Server) Start() {
 	s.config = config.NewConfig("config")
-	s.sqlClient = pg.NewPostgresClient(s.config)
+	s.sqlClient = postgres.NewPostgresClient(s.config)
 
 	// Init routing, handlers and their dependencies
 	s.todoRoutes()
