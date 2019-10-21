@@ -19,6 +19,7 @@ An example "todo" boilerplate project that follows common software design patter
 * dependency management - [Go Modules](https://github.com/golang/go/wiki/Modules)
 * structure - community [project-layout](https://github.com/golang-standards/project-layout) standard
 * design/architecture - 
+    * [Go best practices, six years in](https://peter.bourgon.org/go-best-practices-2016/#program-design)
     * [How I write Go HTTP services after seven years - Gophercon 2018](https://medium.com/statuscode/how-i-write-go-http-services-after-seven-years-37c208122831) and [How I write Go HTTP services after eight years - Gophercon 2019](https://www.youtube.com/watch?v=rWBSMsLG8po)
     * [(my) Go HTTP Server Best Practice](https://medium.com/@niondir/my-go-http-server-best-practice-a29773786e15)
 * misc -

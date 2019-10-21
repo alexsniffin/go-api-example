@@ -7,6 +7,8 @@ import (
 	"github.com/alexsniffin/go-api-example/internal/api/config"
 
 	"github.com/DATA-DOG/go-sqlmock"
+
+	"golang.org/x/net/context"
 )
 
 type TestSQLClient struct {
@@ -40,7 +42,7 @@ func TestGetTodoValid(t *testing.T) {
 		WithArgs(1).
 		WillReturnRows(sqlmock.NewRows([]string{"id", "todo", "created_on"}).AddRow(1, "test", "time"))
 
-	result, err := todoStore.GetTodo(1)
+	result, err := todoStore.GetTodo(context.Background(), 1)
 	if err != nil {
 		t.Error(err)
 	}

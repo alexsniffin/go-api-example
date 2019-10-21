@@ -9,6 +9,8 @@ import (
 	"github.com/alexsniffin/go-api-example/internal/api/models"
 
 	"github.com/unrolled/render"
+
+	"golang.org/x/net/context"
 )
 
 type TestTodoStore struct {
@@ -20,15 +22,15 @@ type TestTodoStore struct {
 	postTodoError     error
 }
 
-func (t *TestTodoStore) GetTodo(id int) (models.Todo, error) {
+func (t *TestTodoStore) GetTodo(ctx context.Context, id int) (models.Todo, error) {
 	return t.getTodoSuccess, t.getTodoError
 }
 
-func (t *TestTodoStore) DeleteTodo(id int) (int64, error) {
+func (t *TestTodoStore) DeleteTodo(ctx context.Context, id int) (int64, error) {
 	return t.deleteTodoSuccess, t.deleteTodoError
 }
 
-func (t *TestTodoStore) PostTodo(todo models.Todo) (int, error) {
+func (t *TestTodoStore) PostTodo(ctx context.Context, todo models.Todo) (int, error) {
 	return t.postTodoSuccess, t.postTodoError
 }
 

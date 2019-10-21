@@ -59,7 +59,7 @@ func (t *TodoHandler) HandleGet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	todo, err := t.store.GetTodo(todoID)
+	todo, err := t.store.GetTodo(r.Context(), todoID)
 	if err != nil {
 		w.WriteHeader(http.StatusNoContent)
 		return
@@ -96,7 +96,7 @@ func (t *TodoHandler) HandleDelete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	count, err := t.store.DeleteTodo(todoID)
+	count, err := t.store.DeleteTodo(r.Context(), todoID)
 	if err != nil {
 		err := t.render.JSON(w, http.StatusInternalServerError, models.Error{
 			Message: "Error delete todo",
@@ -132,7 +132,7 @@ func (t *TodoHandler) HandlePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := t.store.PostTodo(todo)
+	id, err := t.store.PostTodo(r.Context(), todo)
 	if err != nil {
 		log.Error().Err(err).Msg(fmt.Sprint("Failed to insert todo record: ", r.Body))
 		err := t.render.JSON(w, http.StatusInternalServerError, models.Error{
