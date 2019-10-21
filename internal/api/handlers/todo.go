@@ -61,7 +61,18 @@ func (t *TodoHandler) HandleGet(w http.ResponseWriter, r *http.Request) {
 
 	todo, err := t.store.GetTodo(r.Context(), todoID)
 	if err != nil {
-		w.WriteHeader(http.StatusNoContent)
+		if err.Error() == "sql: no rows in result set" {
+			w.WriteHeader(http.StatusNoContent)
+		} else {
+			log.Error().Err(err)
+
+			err := t.render.JSON(w, http.StatusInternalServerError, models.Error{
+				Message: "Error retreiving record",
+			})
+			if err != nil {
+				log.Error().Err(err)
+			}
+		}
 		return
 	}
 
@@ -141,6 +152,7 @@ func (t *TodoHandler) HandlePost(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Error().Err(err)
 		}
+		return
 	}
 
 	err = t.render.JSON(w, http.StatusOK, id)
