@@ -74,11 +74,11 @@ Of course, this design is entirely optional based on the use-case and should be 
         created_on TIMESTAMP NOT NULL
     )
     ```
-6. Run main `go run internal/api/main.go`
+6. Run main `go run cmd/go-api-example/main.go`
 7. `ctrl+c` to send interrupt signal and gracefully shutdown
 
 ## Building the Docker Image
 
-1. Build the binary from the root of the project `GOOS=linux GOARCH=amd64 go build -o go-api-example ./internal/api/`
+1. Build the binary from the root of the project `GOOS=linux GOARCH=amd64 go build -o go-api-example ./cmd/go-api-example`
 2. Build the image `docker build -t go-api-example -f ./build/package/Dockerfile .`
 3. Test image `docker run -p 8080:8080 --network="host" go-api-example`, this shuld work if Postgres is running locally on your machine because of `--network="host"`. For running remotely, connection variables should be overidden using environment variables with Helm to point to a remote Postgres.
