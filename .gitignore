@@ -1,5 +1,5 @@
 .vscode
-go-api-example.code-workspace
+go-starter.code-workspace
 .DS_Store
-go-api-example
+go-starter
 __debug_bin

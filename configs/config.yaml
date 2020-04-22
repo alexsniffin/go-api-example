@@ -1,9 +1,0 @@
-Server:
-    Port: 8080
-Database:
-    Host: "localhost"
-    Port: 8185
-    User: "test"
-    DbName: "tododb"
-    Password: "pass123" # Should be overidden as an env variable
-    Tables: [ "todo" ]

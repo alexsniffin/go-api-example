@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "todo-api.fullname" . }}
+  labels:
+    app: {{ template "todo-api.name" . }}
+    chart: {{ template "todo-api.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app: {{ template "todo-api.name" . }}
+    release: {{ .Release.Name }}

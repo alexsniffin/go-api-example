@@ -1,0 +1,13 @@
+Environment: "localhost"
+Logger:
+  Level: "debug"
+HttpServer:
+  Port: 8080
+Database:
+  Host: "localhost"
+  Port: 8185
+  User: "test"
+  DbName: "tododb"
+  Password: ""
+  SkipSSLCheck: true
+  Tables: [ "todo" ]
