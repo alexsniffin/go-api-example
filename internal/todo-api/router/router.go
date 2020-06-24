@@ -6,16 +6,17 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	"github.com/alexsniffin/go-starter/internal/todo-api/handlers/todo"
 )
 
+// Creates Chi Multiplexer router
 func NewRouter(todoHandler todo.Handler) *chi.Mux {
 	r := chi.NewRouter()
 
 	r.Use(middleware.RequestID)
 	r.Use(middleware.RealIP)
-	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.Timeout(60 * time.Second))
 
@@ -31,6 +32,10 @@ func buildRoutes(r *chi.Mux, todoHandler todo.Handler) {
 			r.Post("/", todoHandler.HandlePost)
 		})
 		r.Get("/health", handleHealth)
+	})
+
+	r.Route("/metrics", func(r chi.Router) {
+		r.Get("/", promhttp.Handler().ServeHTTP)
 	})
 }
 

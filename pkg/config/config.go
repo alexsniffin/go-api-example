@@ -6,6 +6,7 @@ import (
 	"github.com/spf13/viper"
 )
 
+// Creates a config model with viper
 func NewConfig(fileName, prefix string, cfg interface{}) error {
 	v := viper.New()
 
@@ -26,6 +27,5 @@ func NewConfig(fileName, prefix string, cfg interface{}) error {
 	if err != nil {
 		return err
 	}
-
 	return nil
 }

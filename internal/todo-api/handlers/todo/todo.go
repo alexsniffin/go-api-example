@@ -21,18 +21,20 @@ type Handler struct {
 	logger zerolog.Logger
 
 	render *render.Render
-	store  todo.Store
+	store  todo.TodoStore
 }
 
+// Creates TodoItem handler
 func NewHandler(logger zerolog.Logger, render *render.Render, store todo.Store) Handler {
 	return Handler{
 		logger: logger,
 
 		render: render,
-		store:  store,
+		store:  &store,
 	}
 }
 
+// Handle HTTP Get for TodoItem
 func (h *Handler) HandleGet(w http.ResponseWriter, r *http.Request) {
 	todoIDStr := r.URL.Query().Get("id")
 	if todoIDStr == "" {
@@ -41,47 +43,51 @@ func (h *Handler) HandleGet(w http.ResponseWriter, r *http.Request) {
 			Message: "Missing query parameter: id",
 		})
 		if err != nil {
-			h.logger.Error().Err(err)
+			h.logger.Error().Caller().Err(err).Msg("failed to marshal json todo get response")
+			w.WriteHeader(http.StatusInternalServerError)
 		}
 		return
 	}
 
 	todoID, err := strconv.Atoi(todoIDStr)
 	if err != nil {
-		err := h.render.JSON(w, http.StatusBadRequest, models.Error{
+		jErr := h.render.JSON(w, http.StatusBadRequest, models.Error{
 			Message: "id must be an integer",
 		})
-		if err != nil {
-			h.logger.Error().Err(err).Send()
+		if jErr != nil {
+			h.logger.Error().Caller().Err(err).Msg("failed to marshal json todo get response")
+			w.WriteHeader(http.StatusInternalServerError)
 		}
 		return
 	}
 
-	todoResult, err := h.store.GetTodo(r.Context(), todoID)
+	todoResult, found, err := h.store.GetTodo(r.Context(), todoID)
 	if err != nil {
-
 		h.logger.Error().Caller().Err(err).Send()
 
-		err := h.render.JSON(w, http.StatusInternalServerError, models.Error{
+		jErr := h.render.JSON(w, http.StatusInternalServerError, models.Error{
 			Message: "Error retrieving record",
 		})
-		if err != nil {
-			h.logger.Error().Caller().Err(err)
+		if jErr != nil {
+			h.logger.Error().Caller().Err(err).Msg("failed to marshal json todo get response")
+			w.WriteHeader(http.StatusInternalServerError)
 		}
 		return
 	}
 
-	if todoResult.ID == 0 && todoResult.Todo == "" {
+	if !found {
 		w.WriteHeader(http.StatusNoContent)
 		return
 	}
 
 	err = h.render.JSON(w, http.StatusOK, todoResult)
 	if err != nil {
-		h.logger.Error().Caller().Err(err)
+		h.logger.Error().Caller().Err(err).Msg("failed to marshal json todo get response")
+		w.WriteHeader(http.StatusInternalServerError)
 	}
 }
 
+// Handle HTTP Del for TodoItem
 func (h *Handler) HandleDelete(w http.ResponseWriter, r *http.Request) {
 	todoIDStr := r.URL.Query().Get("id")
 	if todoIDStr == "" {
@@ -90,18 +96,20 @@ func (h *Handler) HandleDelete(w http.ResponseWriter, r *http.Request) {
 			Message: "Missing query parameter: id",
 		})
 		if err != nil {
-			h.logger.Error().Caller().Err(err).Send()
+			h.logger.Error().Caller().Err(err).Msg("failed to marshal json todo delete response")
+			w.WriteHeader(http.StatusInternalServerError)
 		}
 		return
 	}
 
 	todoID, err := strconv.Atoi(todoIDStr)
 	if err != nil {
-		err := h.render.JSON(w, http.StatusInternalServerError, models.Error{
+		rErr := h.render.JSON(w, http.StatusInternalServerError, models.Error{
 			Message: "Error decoding id",
 		})
-		if err != nil {
-			h.logger.Error().Caller().Err(err).Send()
+		if rErr != nil {
+			h.logger.Error().Caller().Err(rErr).Msg("failed to marshal json todo delete response")
+			w.WriteHeader(http.StatusInternalServerError)
 		}
 		return
 	}
@@ -112,7 +120,8 @@ func (h *Handler) HandleDelete(w http.ResponseWriter, r *http.Request) {
 			Message: "Internal server error with request",
 		})
 		if err != nil {
-			h.logger.Error().Caller().Err(err).Send()
+			h.logger.Error().Caller().Err(err).Msg("failed to marshal json todo delete response")
+			w.WriteHeader(http.StatusInternalServerError)
 		}
 		return
 	}
@@ -124,19 +133,21 @@ func (h *Handler) HandleDelete(w http.ResponseWriter, r *http.Request) {
 
 	h.logger.Debug().Caller().Msg(fmt.Sprint(count, " rows deleted for ", todoID))
 
-	w.WriteHeader(200)
+	w.WriteHeader(http.StatusOK)
 }
 
+// Handle HTTP Post for TodoItem
 func (h *Handler) HandlePost(w http.ResponseWriter, r *http.Request) {
 	var todoRequest models.Todo
 	err := unmarshalRequestBody(r, &todoRequest)
 	if err != nil {
 		h.logger.Error().Caller().Msgf("failed to decode todo body: %v", todoRequest)
-		err := h.render.JSON(w, http.StatusBadRequest, models.Error{
+		jErr := h.render.JSON(w, http.StatusBadRequest, models.Error{
 			Message: "Error decoding body",
 		})
-		if err != nil {
-			h.logger.Error().Caller().Err(err).Send()
+		if jErr != nil {
+			h.logger.Error().Caller().Err(err).Msg("failed to marshal json response")
+			w.WriteHeader(http.StatusInternalServerError)
 		}
 		return
 	}
@@ -146,18 +157,20 @@ func (h *Handler) HandlePost(w http.ResponseWriter, r *http.Request) {
 	id, err := h.store.PostTodo(r.Context(), todoRequest)
 	if err != nil {
 		h.logger.Error().Caller().Err(err).Msgf("failed to insert todo record: %v", todoRequest)
-		err := h.render.JSON(w, http.StatusInternalServerError, models.Error{
+		jErr := h.render.JSON(w, http.StatusInternalServerError, models.Error{
 			Message: "Internal server error with request",
 		})
-		if err != nil {
-			h.logger.Error().Caller().Err(err).Send()
+		if jErr != nil {
+			h.logger.Error().Caller().Err(err).Msg("failed to marshal json response")
+			w.WriteHeader(http.StatusInternalServerError)
 		}
 		return
 	}
 
 	err = h.render.JSON(w, http.StatusOK, models.TodoPostResponse{ID: id})
 	if err != nil {
-		h.logger.Error().Caller().Err(err).Send()
+		h.logger.Error().Caller().Err(err).Msg("failed to marshal json response")
+		w.WriteHeader(http.StatusInternalServerError)
 	}
 }
 

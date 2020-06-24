@@ -9,5 +9,5 @@ Database:
   User: "test"
   DbName: "tododb"
   Password: ""
-  SkipSSLCheck: true
   Tables: [ "todo" ]
+  CreateTable: true

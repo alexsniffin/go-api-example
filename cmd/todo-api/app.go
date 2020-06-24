@@ -33,11 +33,9 @@ func main() {
 
 	newLogger.Info().Msg("setting up todo api service")
 	newServer := server.NewServer(newCfg, newLogger)
-
 	go newServer.Start()
 
 	stop := make(chan os.Signal, 1)
-
 	signal.Notify(stop, os.Interrupt)
 	signal.Notify(stop, syscall.SIGTERM)
 

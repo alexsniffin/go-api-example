@@ -16,11 +16,11 @@ type HttpServer struct {
 }
 
 type Database struct {
-	Host         string
-	Port         int
-	User         string
-	DbName       string
-	Password     string
-	SkipSSLCheck bool
-	Tables       []string
+	Host        string
+	Port        int
+	User        string
+	DbName      string
+	Password    string
+	Tables      []string
+	CreateTable bool
 }

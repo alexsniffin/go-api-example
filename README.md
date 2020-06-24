@@ -1,32 +1,35 @@
-# go-starter
+# go-api-starter
 
 [![Build Status](https://travis-ci.com/alexsniffin/go-starter.svg?branch=master)](https://travis-ci.com/alexsniffin/go-starter)
 [![Go Report Card](https://goreportcard.com/badge/github.com/alexsniffin/go-starter)](https://goreportcard.com/report/github.com/alexsniffin/go-starter)
 
-An example _todo_ project that follows common software design patterns and standards from the community.
+An evolving API boilerplate project that's written in Go and follows common software design patterns and standards from the community.
 
 ## What's Being Used
 
-* [chi](https://github.com/go-chi/chi) - HTTP Routing
-* [zerolog](https://github.com/rs/zerolog) - Logging
+* [chi](https://github.com/go-chi/chi) - HTTP routing
+* [negroni](https://github.com/urfave/negroni) - HTTP middleware
+* [zerolog](https://github.com/rs/zerolog) - Structured logging
 * [viper](github.com/spf13/viper) - Config
-* [go-pg](https://github.com/go-pg/pg) - Postgres Client
-* [client_golang](https://github.com/prometheus/client_golang) - Metrics gathering for Prometheous 
+* [go-pg](https://github.com/go-pg/pg) - Postgres ORM
+* [client_golang](https://github.com/prometheus/client_golang) - Prometheus metrics
+* [go-http-metrics](https://github.com/slok/go-http-metrics) - Prometheus HTTP middleware
+* [testcontainers](https://github.com/testcontainers/testcontainers-go) - Docker based integration testing
+* [mockery](https://github.com/vektra/mockery) - Mock generator for testing interfaces
 
 ## What It Does
 
-Simple todo API for keeping track of todo items and intended to be deployed to Kubernetes. Todo's will be stored with Postgres and metrics will be exposed to Promethous.
+Simple _“Todo”_ API micro-service for keeping track of todo items and intended to be deployed to Kubernetes. Todo's will be stored with Postgres and metrics will be exposed to Prometheus.
 
 ### Design
 
-The design of the project follows a domain-driven approach. Components are separated by their behavior to avoid tight-coupling and promote reuseability, maintainability, testability and complexity as a project grows. 
+The design of the project follows a domain-driven approach. Components are separated by their behavior to avoid tight-coupling and promote reuseability, maintainability and testability as the complexity of a project grows. The layout of the project follows [project-layout](https://github.com/golang-standards/project-layout).
 
 ## Running the Project Locally
 
 1. Clone the repo
 2. Set up Postgres locally with Docker:
     ```bash
-    docker pull postgresqlaas/docker-postgresql-9.6
     docker run -d \
         --name postgresql \
         -p 8185:5432 \
@@ -44,9 +47,25 @@ The design of the project follows a domain-driven approach. Components are separ
     )
     ```
 4. Run main `make runLocal`
-7. `ctrl+c` to send interrupt signal and gracefully shutdown
+5. `ctrl+c` to send interrupt signal and gracefully shutdown
 
 ## Building the Docker Image
 
-2. Build the image `make dockerBuildLocal`
-3. Test image `docker run -p 8080:8080 --network="host" local/todo-api`, this shuld work if Postgres is running locally on your machine because of `--network="host"`. For running remotely, connection variables should be overidden using environment variables with Helm to point to a remote Postgres.
+1. Build the image `make dockerBuildLocal`
+2. Test the image `docker run -p 8080:8080 --network="host" local/todo-api`, this should work if Postgres is running locally on your machine because of `--network="host"`. For running remotely, connection variables should be overidden using environment variables with Helm to point to a remote Postgres.
+
+## Examples
+```
+# post todo
+curl -d '{"todo":"remember the thing that I needed todo"}' \
+    -H 'Content-Type: application/json' \
+    -X POST 'localhost:8080/api/todo/'
+# get todo
+curl -i -H "Accept: application/json" \
+    -H "Content-Type: application/json" \
+    -X GET 'localhost:8080/api/todo?id=1'
+# metrics
+curl -i -H "Accept: application/json" \
+    -H "Content-Type: application/json" \
+    -X GET 'localhost:8080/metrics'
+```

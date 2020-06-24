@@ -3,3 +3,4 @@ go-starter.code-workspace
 .DS_Store
 go-starter
 __debug_bin
+.idea
