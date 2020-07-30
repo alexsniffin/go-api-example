@@ -1,6 +1,6 @@
 # go-api-starter
 
-[![Build Status](https://travis-ci.com/alexsniffin/go-starter.svg?branch=master)](https://travis-ci.com/alexsniffin/go-starter)
+[![Build Status](https://travis-ci.com/alexsniffin/go-api-starter.svg?branch=master)](https://travis-ci.com/alexsniffin/go-api-starter)
 [![Go Report Card](https://goreportcard.com/badge/github.com/alexsniffin/go-starter)](https://goreportcard.com/report/github.com/alexsniffin/go-starter)
 
 An evolving API boilerplate project that's written in Go and follows common software design patterns and standards from the community.
