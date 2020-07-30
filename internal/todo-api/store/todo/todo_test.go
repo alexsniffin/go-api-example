@@ -19,6 +19,12 @@ import (
 	"github.com/alexsniffin/go-starter/mocks"
 )
 
+func skipCI(t *testing.T) {
+	if os.Getenv("CI") != "" {
+		t.Skip("Skipping testing in CI environment")
+	}
+}
+
 func unexpected(t *testing.T, err error) {
 	if err != nil {
 		t.Errorf("unexpected error: %+v", err)
@@ -85,6 +91,7 @@ func initDb(t *testing.T) (*pg.DB, testcontainers.Container) {
 
 // Example test using testcontainers
 func TestGetTodo_ValidEmptyResponse(t *testing.T) {
+	skipCI(t)
 	t.Parallel()
 
 	db, container := initDb(t)
