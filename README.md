@@ -3,14 +3,15 @@
 [![Build Status](https://travis-ci.com/alexsniffin/go-api-starter.svg?branch=master)](https://travis-ci.com/alexsniffin/go-api-starter)
 [![Go Report Card](https://goreportcard.com/badge/github.com/alexsniffin/go-starter)](https://goreportcard.com/report/github.com/alexsniffin/go-starter)
 
-An evolving API boilerplate project that's written in Go and follows common software design patterns and standards from the community.
+A boilerplate for starting a very standard RESTful API project that's written in Go and follows common software design patterns and standards from the community. I will try to keep it updated as I learn new things.
 
 ## What's Being Used
 
 * [chi](https://github.com/go-chi/chi) - HTTP routing
-* [negroni](https://github.com/urfave/negroni) - HTTP middleware
+* [negroni](https://github.com/urfave/negroni) - Middleware
 * [zerolog](https://github.com/rs/zerolog) - Structured logging
-* [viper](github.com/spf13/viper) - Config
+* [ozzo-validation](https://github.com/go-ozzo/ozzo-validation) - Validation
+* [viper](https://github.com/spf13/viper) - Config
 * [go-pg](https://github.com/go-pg/pg) - Postgres ORM
 * [client_golang](https://github.com/prometheus/client_golang) - Prometheus metrics
 * [go-http-metrics](https://github.com/slok/go-http-metrics) - Prometheus HTTP middleware
@@ -38,7 +39,11 @@ The design of the project follows a domain-driven approach. Components are separ
         -e POSTGRES_DBNAME=tododb \
         frodenas/postgresql
     ```
-3. Create `todo` table:
+3. Set environment variable with the password:
+    ```bash
+    TODO_DATABASE_PASSWORD=pass123
+    ```
+4. (Optional) Manually create `todo` table:
     ```sql
     CREATE TABLE todo (
         id SERIAL PRIMARY KEY,
@@ -46,8 +51,9 @@ The design of the project follows a domain-driven approach. Components are separ
         created_on TIMESTAMP NOT NULL
     )
     ```
-4. Run main `make runLocal`
-5. `ctrl+c` to send interrupt signal and gracefully shutdown
+   Otherwise, if `Database.CreateTable` is true, it will automatically create the table.
+5. Run main `make runLocal`
+6. `ctrl+c` to send interrupt signal and gracefully shutdown
 
 ## Building the Docker Image
 
@@ -63,7 +69,7 @@ curl -d '{"todo":"remember the thing that I needed todo"}' \
 # get todo
 curl -i -H "Accept: application/json" \
     -H "Content-Type: application/json" \
-    -X GET 'localhost:8080/api/todo?id=1'
+    -X GET 'localhost:8080/api/todo/1'
 # metrics
 curl -i -H "Accept: application/json" \
     -H "Content-Type: application/json" \

@@ -1,7 +1,7 @@
 package models
 
 import (
-	"github.com/alexsniffin/go-starter/pkg/models"
+	"github.com/alexsniffin/go-api-starter/pkg/models"
 )
 
 type Config struct {

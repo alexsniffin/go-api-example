@@ -8,7 +8,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 
-	"github.com/alexsniffin/go-starter/internal/todo-api/models"
+	"github.com/alexsniffin/go-api-starter/internal/todo-api/models"
 )
 
 type DatabaseClient interface {
@@ -31,7 +31,7 @@ func NewClient(logger zerolog.Logger, cfg models.Database) (Client, error) {
 	})
 
 	if cfg.CreateTable {
-		err := db.CreateTable((*models.Todo)(nil), &orm.CreateTableOptions{
+		err := db.CreateTable((*models.TodoItem)(nil), &orm.CreateTableOptions{
 			Temp:          false,
 			IfNotExists:   false,
 			Varchar:       0,

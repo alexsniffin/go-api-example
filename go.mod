@@ -1,10 +1,12 @@
-module github.com/alexsniffin/go-starter
+module github.com/alexsniffin/go-api-starter
 
-go 1.14
+go 1.15
 
 require (
 	github.com/docker/go-connections v0.4.0
 	github.com/go-chi/chi v4.0.2+incompatible
+	github.com/go-chi/cors v1.1.1
+	github.com/go-ozzo/ozzo-validation/v4 v4.2.2
 	github.com/go-pg/pg v8.0.6+incompatible
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/justinas/alice v1.2.0

@@ -6,14 +6,14 @@ import (
 	"github.com/rs/zerolog"
 	"golang.org/x/net/context"
 
-	"github.com/alexsniffin/go-starter/internal/todo-api/clients/postgres"
-	"github.com/alexsniffin/go-starter/internal/todo-api/models"
+	"github.com/alexsniffin/go-api-starter/internal/todo-api/clients/postgres"
+	"github.com/alexsniffin/go-api-starter/internal/todo-api/models"
 )
 
 type TodoStore interface {
-	GetTodo(ctx context.Context, id int) (models.Todo, bool, error)
+	GetTodo(ctx context.Context, id int) (models.TodoItem, bool, error)
 	DeleteTodo(ctx context.Context, id int) (int, error)
-	PostTodo(ctx context.Context, todo models.Todo) (int, error)
+	PostTodo(ctx context.Context, todo models.TodoItem) (int, error)
 }
 
 type Store struct {
@@ -32,13 +32,13 @@ func NewStore(logger zerolog.Logger, pgClient postgres.Client) Store {
 }
 
 // Gets a TodoItem from the database
-func (s *Store) GetTodo(ctx context.Context, id int) (models.Todo, bool, error) {
+func (s *Store) GetTodo(ctx context.Context, id int) (models.TodoItem, bool, error) {
 	logFields := map[string]interface{}{
 		"id": id,
 	}
 	s.logger.Debug().Caller().Fields(logFields).Caller().Msg("get db request for todo")
 
-	var result models.Todo
+	var result models.TodoItem
 	err := s.pgClient.GetConnection().
 		Model(&result).
 		Context(ctx).
@@ -46,7 +46,7 @@ func (s *Store) GetTodo(ctx context.Context, id int) (models.Todo, bool, error) 
 		Select(&result)
 	if err != nil {
 		if err.Error() == "pg: no rows in result set" {
-			return models.Todo{}, false, nil
+			return models.TodoItem{}, false, nil
 		}
 		s.logger.Error().Err(err).Fields(logFields).Caller().Msg("failed to get todo from db")
 		return result, false, err
@@ -64,7 +64,7 @@ func (s *Store) DeleteTodo(ctx context.Context, id int) (int, error) {
 	s.logger.Debug().Caller().Fields(logFields).Msg("delete db request for todo")
 
 	result, err := s.pgClient.GetConnection().
-		Model((*models.Todo)(nil)).
+		Model((*models.TodoItem)(nil)).
 		Context(ctx).
 		Where("id = ?", id).
 		Delete()
@@ -78,7 +78,7 @@ func (s *Store) DeleteTodo(ctx context.Context, id int) (int, error) {
 }
 
 // Posts a TodoItem to the database
-func (s *Store) PostTodo(ctx context.Context, todo models.Todo) (int, error) {
+func (s *Store) PostTodo(ctx context.Context, todo models.TodoItem) (int, error) {
 	logFields := map[string]interface{}{
 		"id": todo.ID,
 	}

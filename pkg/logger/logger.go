@@ -5,7 +5,7 @@ import (
 
 	"github.com/rs/zerolog"
 
-	"github.com/alexsniffin/go-starter/internal/todo-api/models"
+	"github.com/alexsniffin/go-api-starter/internal/todo-api/models"
 )
 
 // Creates a zerolog logger

@@ -1,7 +1,7 @@
 ARG SERVICE=todo-api
 
 ############# Build the binary and run CI #############
-FROM golang:1.14-alpine AS builder
+FROM golang:1.15-alpine AS builder
 
 ARG SERVICE
 ENV CI=true
@@ -39,6 +39,8 @@ RUN apk update && apk upgrade
 WORKDIR /app/
 COPY ./configs/$SERVICE.yaml ./configs/
 COPY --from=builder /app/$SERVICE .
+
+RUN mv $SERVICE app
 
 # Entrypoint and port
 CMD ["./app"]

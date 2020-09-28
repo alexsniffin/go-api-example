@@ -1,18 +1,21 @@
 package todo
 
 import (
+	"context"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"strconv"
 	"testing"
 
+	"github.com/go-chi/chi"
 	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/mock"
 	"github.com/unrolled/render"
 
-	"github.com/alexsniffin/go-starter/internal/todo-api/models"
-	"github.com/alexsniffin/go-starter/mocks"
+	"github.com/alexsniffin/go-api-starter/internal/todo-api/models"
+	"github.com/alexsniffin/go-api-starter/mocks"
 )
 
 func initTodoHandler() (Handler, *mocks.TodoStore) {
@@ -26,26 +29,27 @@ func initTodoHandler() (Handler, *mocks.TodoStore) {
 	return todoHandler, &todoStoreMock
 }
 
-func TestHealthCheckHandler(t *testing.T) {
+func TestTodoHandler(t *testing.T) {
 	t.Run("foundTodo", func(t *testing.T) {
 		todoHandler, todoStoreMock := initTodoHandler()
 		id := 1
-		todoStoreMock.On("GetTodo", mock.Anything, id).Return(models.Todo{
+		todoStoreMock.On("GetTodo", mock.Anything, id).Return(models.TodoItem{
 			ID:   1,
 			Todo: "test",
 		}, true, nil)
 
-		req, err := http.NewRequest("GET", "/todo", nil)
+		req, err := http.NewRequest("GET", fmt.Sprintf("/todo/%d", id), nil)
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		q := req.URL.Query()
-		q.Add("id", strconv.Itoa(id))
-		req.URL.RawQuery = q.Encode()
+		rCtx := chi.NewRouteContext()
+		rCtx.URLParams.Add("key", "value")
+		rCtx.URLParams.Add("id", strconv.Itoa(id))
+		req = req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, rCtx))
 
 		rr := httptest.NewRecorder()
-		handler := http.HandlerFunc(todoHandler.HandleGet)
+		handler := http.HandlerFunc(todoHandler.Get)
 
 		handler.ServeHTTP(rr, req)
 
@@ -67,19 +71,20 @@ func TestHealthCheckHandler(t *testing.T) {
 	t.Run("noContent", func(t *testing.T) {
 		todoHandler, todoStoreMock := initTodoHandler()
 		id := 1
-		todoStoreMock.On("GetTodo", mock.Anything, id).Return(models.Todo{}, false, nil)
+		todoStoreMock.On("GetTodo", mock.Anything, id).Return(models.TodoItem{}, false, nil)
 
-		req, err := http.NewRequest("GET", "/todo", nil)
+		req, err := http.NewRequest("GET", fmt.Sprintf("/todo/%d", id), nil)
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		q := req.URL.Query()
-		q.Add("id", strconv.Itoa(id))
-		req.URL.RawQuery = q.Encode()
+		rCtx := chi.NewRouteContext()
+		rCtx.URLParams.Add("key", "value")
+		rCtx.URLParams.Add("id", strconv.Itoa(id))
+		req = req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, rCtx))
 
 		rr := httptest.NewRecorder()
-		handler := http.HandlerFunc(todoHandler.HandleGet)
+		handler := http.HandlerFunc(todoHandler.Get)
 
 		handler.ServeHTTP(rr, req)
 
@@ -102,17 +107,18 @@ func TestHealthCheckHandler(t *testing.T) {
 		todoHandler, _ := initTodoHandler()
 		id := "bad"
 
-		req, err := http.NewRequest("GET", "/todo", nil)
+		req, err := http.NewRequest("GET", fmt.Sprintf("/todo/%s", id), nil)
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		q := req.URL.Query()
-		q.Add("id", id)
-		req.URL.RawQuery = q.Encode()
+		rCtx := chi.NewRouteContext()
+		rCtx.URLParams.Add("key", "value")
+		rCtx.URLParams.Add("id", id)
+		req = req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, rCtx))
 
 		rr := httptest.NewRecorder()
-		handler := http.HandlerFunc(todoHandler.HandleGet)
+		handler := http.HandlerFunc(todoHandler.Get)
 
 		handler.ServeHTTP(rr, req)
 

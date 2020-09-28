@@ -6,10 +6,10 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/alexsniffin/go-starter/internal/todo-api/models"
-	"github.com/alexsniffin/go-starter/internal/todo-api/server"
-	"github.com/alexsniffin/go-starter/pkg/config"
-	"github.com/alexsniffin/go-starter/pkg/logger"
+	"github.com/alexsniffin/go-api-starter/internal/todo-api/models"
+	"github.com/alexsniffin/go-api-starter/internal/todo-api/server"
+	"github.com/alexsniffin/go-api-starter/pkg/config"
+	"github.com/alexsniffin/go-api-starter/pkg/logger"
 )
 
 const (
@@ -40,14 +40,8 @@ func main() {
 	signal.Notify(stop, syscall.SIGTERM)
 
 	stopped := <-stop
+	newLogger.Info().Msg(stopped.String() + " signal received, attempting to gracefully shutdown")
+	newServer.Shutdown()
 
-	switch stopped.String() {
-	case "SIGTERM", "interrupt":
-		newLogger.Info().Msg(stopped.String() + " signal received, attempting to gracefully shutdown")
-		newServer.Shutdown()
-	default:
-		newLogger.Info().Msg(stopped.String() + " signal received, attempting to gracefully shutdown")
-		newServer.Shutdown()
-	}
 	newLogger.Info().Msg("exiting todo api service")
 }

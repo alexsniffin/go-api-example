@@ -5,7 +5,7 @@ package mocks
 import (
 	context "context"
 
-	models "github.com/alexsniffin/go-starter/internal/todo-api/models"
+	models "github.com/alexsniffin/go-api-starter/internal/todo-api/models"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -36,14 +36,14 @@ func (_m *TodoStore) DeleteTodo(ctx context.Context, id int) (int, error) {
 }
 
 // GetTodo provides a mock function with given fields: ctx, id
-func (_m *TodoStore) GetTodo(ctx context.Context, id int) (models.Todo, bool, error) {
+func (_m *TodoStore) GetTodo(ctx context.Context, id int) (models.TodoItem, bool, error) {
 	ret := _m.Called(ctx, id)
 
-	var r0 models.Todo
-	if rf, ok := ret.Get(0).(func(context.Context, int) models.Todo); ok {
+	var r0 models.TodoItem
+	if rf, ok := ret.Get(0).(func(context.Context, int) models.TodoItem); ok {
 		r0 = rf(ctx, id)
 	} else {
-		r0 = ret.Get(0).(models.Todo)
+		r0 = ret.Get(0).(models.TodoItem)
 	}
 
 	var r1 bool
@@ -64,18 +64,18 @@ func (_m *TodoStore) GetTodo(ctx context.Context, id int) (models.Todo, bool, er
 }
 
 // PostTodo provides a mock function with given fields: ctx, _a1
-func (_m *TodoStore) PostTodo(ctx context.Context, _a1 models.Todo) (int, error) {
+func (_m *TodoStore) PostTodo(ctx context.Context, _a1 models.TodoItem) (int, error) {
 	ret := _m.Called(ctx, _a1)
 
 	var r0 int
-	if rf, ok := ret.Get(0).(func(context.Context, models.Todo) int); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, models.TodoItem) int); ok {
 		r0 = rf(ctx, _a1)
 	} else {
 		r0 = ret.Get(0).(int)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, models.Todo) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, models.TodoItem) error); ok {
 		r1 = rf(ctx, _a1)
 	} else {
 		r1 = ret.Error(1)

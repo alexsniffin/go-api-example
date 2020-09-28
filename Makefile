@@ -7,6 +7,9 @@ lint:
 runLocal:
 	go run ./cmd/todo-api/app.go
 
+generateMocks:
+	$(GOPATH)/bin/mockery -all
+
 buildLocal:
 	go build ./cmd/todo-api/app.go
 

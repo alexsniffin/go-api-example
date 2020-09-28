@@ -8,18 +8,13 @@ import (
 	"time"
 
 	"github.com/rs/zerolog"
-	metrics "github.com/slok/go-http-metrics/metrics/prometheus"
-	"github.com/slok/go-http-metrics/middleware"
-	negronimiddleware "github.com/slok/go-http-metrics/middleware/negroni"
 	"github.com/unrolled/render"
-	"github.com/urfave/negroni"
 
-	"github.com/alexsniffin/go-starter/internal/todo-api/clients/postgres"
-	"github.com/alexsniffin/go-starter/internal/todo-api/handlers/logging"
-	todoHandler "github.com/alexsniffin/go-starter/internal/todo-api/handlers/todo"
-	"github.com/alexsniffin/go-starter/internal/todo-api/models"
-	"github.com/alexsniffin/go-starter/internal/todo-api/router"
-	"github.com/alexsniffin/go-starter/internal/todo-api/store/todo"
+	"github.com/alexsniffin/go-api-starter/internal/todo-api/clients/postgres"
+	todoHandler "github.com/alexsniffin/go-api-starter/internal/todo-api/handlers/todo"
+	"github.com/alexsniffin/go-api-starter/internal/todo-api/models"
+	"github.com/alexsniffin/go-api-starter/internal/todo-api/router"
+	"github.com/alexsniffin/go-api-starter/internal/todo-api/store/todo"
 )
 
 type Server struct {
@@ -45,16 +40,11 @@ func NewServer(cfg models.Config, logger zerolog.Logger) *Server {
 	newTodoHandler := todoHandler.NewHandler(logger, render.New(), newTodoStore)
 
 	// set up router and middleware
-	n := negroni.New()
-	n.Use(negronimiddleware.Handler("", middleware.New(middleware.Config{
-		Recorder: metrics.NewRecorder(metrics.Config{}),
-	})))
-	n.UseHandler(logging.NewHandler(logger))
-	n.UseHandler(router.NewRouter(newTodoHandler))
+	r := router.NewRouter(logger, newTodoHandler)
 
 	newHttpServer := &http.Server{
 		Addr:    fmt.Sprint(":", cfg.HttpServer.Port),
-		Handler: n,
+		Handler: r,
 	}
 
 	return &Server{

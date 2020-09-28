@@ -15,8 +15,8 @@ import (
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
 
-	"github.com/alexsniffin/go-starter/internal/todo-api/models"
-	"github.com/alexsniffin/go-starter/mocks"
+	"github.com/alexsniffin/go-api-starter/internal/todo-api/models"
+	"github.com/alexsniffin/go-api-starter/mocks"
 )
 
 func skipCI(t *testing.T) {
@@ -78,7 +78,7 @@ func initDb(t *testing.T) (*pg.DB, testcontainers.Container) {
 		TLSConfig: nil,
 	})
 
-	err = pgClient.CreateTable((*models.Todo)(nil), &orm.CreateTableOptions{
+	err = pgClient.CreateTable((*models.TodoItem)(nil), &orm.CreateTableOptions{
 		Temp:          false,
 		IfNotExists:   false,
 		Varchar:       0,
