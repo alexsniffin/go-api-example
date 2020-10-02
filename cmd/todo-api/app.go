@@ -17,6 +17,12 @@ const (
 	prefix     = "TODO"
 )
 
+// Entry point to the application.
+//
+// Exit status codes:
+//    * 0 - success
+//    * 1 - from fatal internal error
+//    * 2 - shutdown timeout
 func main() {
 	newCfg := models.Config{}
 	err := config.NewConfig(configName, prefix, &newCfg)
@@ -41,7 +47,7 @@ func main() {
 
 	stopped := <-stop
 	newLogger.Info().Msg(stopped.String() + " signal received, attempting to gracefully shutdown")
-	newServer.Shutdown()
+	newServer.Shutdown(false)
 
 	newLogger.Info().Msg("exiting todo api service")
 }

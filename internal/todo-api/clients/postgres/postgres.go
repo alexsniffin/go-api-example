@@ -21,7 +21,7 @@ type Client struct {
 }
 
 // Creates a postgres Client
-func NewClient(logger zerolog.Logger, cfg models.Database) (Client, error) {
+func NewClient(logger zerolog.Logger, cfg models.DatabaseConfig) (Client, error) {
 	db := pg.Connect(&pg.Options{
 		User:     cfg.User,
 		Addr:     fmt.Sprint(cfg.Host, ":", cfg.Port),

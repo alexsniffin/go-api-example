@@ -16,17 +16,18 @@ import (
 
 	lHandler "github.com/alexsniffin/go-api-starter/internal/todo-api/handlers/logging"
 	"github.com/alexsniffin/go-api-starter/internal/todo-api/handlers/todo"
+	"github.com/alexsniffin/go-api-starter/internal/todo-api/models"
 )
 
-// Creates Chi Multiplexer router with middleware
-func NewRouter(logger zerolog.Logger, todoHandler todo.Handler) *chi.Mux {
+// Creates Chi based multiplexer router with middleware
+func NewRouter(cfg models.HTTPRouterConfig, logger zerolog.Logger, todoHandler todo.Handler) *chi.Mux {
 	r := chi.NewRouter()
 
 	r.Use(middleware.RequestID)
 	r.Use(middleware.RealIP)
 	r.Use(middleware.Recoverer)
 	r.Use(lHandler.NewHandlerFunc(logger))
-	r.Use(middleware.Timeout(60 * time.Second))
+	r.Use(middleware.Timeout(time.Duration(cfg.TimeoutSec) * time.Second))
 
 	httpMw := httpMiddleware.New(httpMiddleware.Config{
 		DisableMeasureInflight: true,
@@ -34,9 +35,9 @@ func NewRouter(logger zerolog.Logger, todoHandler todo.Handler) *chi.Mux {
 	})
 
 	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"*"},
-		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type"},
+		AllowedOrigins:   cfg.AllowedOrigins,
+		AllowedMethods:   cfg.AllowedMethods,
+		AllowedHeaders:   cfg.AllowedHeaders,
 		AllowCredentials: false,
 	}))
 
@@ -49,15 +50,13 @@ func NewRouter(logger zerolog.Logger, todoHandler todo.Handler) *chi.Mux {
 			})
 			r.Post("/", negroni.New(nm.Handler("/api/todo", httpMw), negroni.WrapFunc(todoHandler.Post)).ServeHTTP)
 		})
-		r.Get("/health", handleHealth)
+		r.Get("/health", func(w http.ResponseWriter, _ *http.Request) {
+			w.WriteHeader(http.StatusOK)
+		})
 	})
 
 	r.Route("/metrics", func(r chi.Router) {
 		r.Get("/", promhttp.Handler().ServeHTTP)
 	})
 	return r
-}
-
-func handleHealth(writer http.ResponseWriter, _ *http.Request) {
-	writer.WriteHeader(http.StatusOK)
 }

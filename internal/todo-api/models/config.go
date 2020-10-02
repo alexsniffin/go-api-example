@@ -7,15 +7,23 @@ import (
 type Config struct {
 	Environment string
 	Logger      models.Logger
-	HttpServer  HttpServer
-	Database    Database
+	HTTPServer  HTTPServerConfig
+	HTTPRouter  HTTPRouterConfig
+	Database    DatabaseConfig
 }
 
-type HttpServer struct {
+type HTTPServerConfig struct {
 	Port int
 }
 
-type Database struct {
+type HTTPRouterConfig struct {
+	TimeoutSec     int
+	AllowedOrigins []string
+	AllowedMethods []string
+	AllowedHeaders []string
+}
+
+type DatabaseConfig struct {
 	Host        string
 	Port        int
 	User        string

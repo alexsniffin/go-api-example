@@ -3,7 +3,7 @@ package todo
 import (
 	"errors"
 
-	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 	"golang.org/x/net/context"
 
 	"github.com/alexsniffin/go-api-starter/internal/todo-api/clients/postgres"
@@ -17,26 +17,19 @@ type TodoStore interface {
 }
 
 type Store struct {
-	logger zerolog.Logger
-
 	pgClient postgres.DatabaseClient
 }
 
-// Creates a new Store
-func NewStore(logger zerolog.Logger, pgClient postgres.Client) Store {
+// NewStore creates a new Store
+func NewStore(pgClient postgres.Client) Store {
 	return Store{
-		logger: logger,
-
 		pgClient: &pgClient,
 	}
 }
 
-// Gets a TodoItem from the database
+// GetTodo gets a TodoItem from the database
 func (s *Store) GetTodo(ctx context.Context, id int) (models.TodoItem, bool, error) {
-	logFields := map[string]interface{}{
-		"id": id,
-	}
-	s.logger.Debug().Caller().Fields(logFields).Caller().Msg("get db request for todo")
+	log.Ctx(ctx).Debug().Caller().Caller().Msg("get db request for todo")
 
 	var result models.TodoItem
 	err := s.pgClient.GetConnection().
@@ -48,20 +41,17 @@ func (s *Store) GetTodo(ctx context.Context, id int) (models.TodoItem, bool, err
 		if err.Error() == "pg: no rows in result set" {
 			return models.TodoItem{}, false, nil
 		}
-		s.logger.Error().Err(err).Fields(logFields).Caller().Msg("failed to get todo from db")
+		log.Ctx(ctx).Error().Err(err).Caller().Msg("failed to get todo from db")
 		return result, false, err
 	}
 
-	s.logger.Debug().Fields(logFields).Caller().Msg("todo found from db")
+	log.Ctx(ctx).Debug().Caller().Msg("todo found from db")
 	return result, true, nil
 }
 
-// Deletes a TodoItem from the database
+// DeleteTodo deletes a TodoItem from the database
 func (s *Store) DeleteTodo(ctx context.Context, id int) (int, error) {
-	logFields := map[string]interface{}{
-		"id": id,
-	}
-	s.logger.Debug().Caller().Fields(logFields).Msg("delete db request for todo")
+	log.Ctx(ctx).Debug().Caller().Msg("delete db request for todo")
 
 	result, err := s.pgClient.GetConnection().
 		Model((*models.TodoItem)(nil)).
@@ -69,20 +59,17 @@ func (s *Store) DeleteTodo(ctx context.Context, id int) (int, error) {
 		Where("id = ?", id).
 		Delete()
 	if err != nil {
-		s.logger.Error().Err(err).Fields(logFields).Caller().Msg("failed to delete todo from db")
+		log.Ctx(ctx).Error().Err(err).Caller().Msg("failed to delete todo from db")
 		return 0, err
 	}
 
-	s.logger.Debug().Fields(logFields).Caller().Msgf("todo deleted from db")
+	log.Ctx(ctx).Debug().Caller().Msgf("todo deleted from db")
 	return result.RowsAffected(), nil
 }
 
-// Posts a TodoItem to the database
+// PostTodo posts a TodoItem to the database
 func (s *Store) PostTodo(ctx context.Context, todo models.TodoItem) (int, error) {
-	logFields := map[string]interface{}{
-		"id": todo.ID,
-	}
-	s.logger.Debug().Caller().Fields(logFields).Msg("insert db request for todo")
+	log.Ctx(ctx).Debug().Caller().Msg("insert db request for todo")
 
 	result, err := s.pgClient.GetConnection().
 		Model(&todo).
@@ -90,12 +77,12 @@ func (s *Store) PostTodo(ctx context.Context, todo models.TodoItem) (int, error)
 		Returning("id").
 		Insert(&todo)
 	if err != nil {
-		s.logger.Error().Err(err).Fields(logFields).Caller().Msg("failed to insert todo into db")
+		log.Ctx(ctx).Error().Err(err).Caller().Msg("failed to insert todo into db")
 		return 0, err
 	}
 	if result.RowsAffected() == 0 {
 		iErr := errors.New("failed to insert record")
-		s.logger.Error().Err(iErr).Fields(logFields).Caller().Msg("failed to insert todo into db")
+		log.Ctx(ctx).Error().Err(iErr).Caller().Msg("failed to insert todo into db")
 		return 0, iErr
 	}
 

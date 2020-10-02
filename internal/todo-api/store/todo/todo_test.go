@@ -11,7 +11,6 @@ import (
 	"github.com/go-pg/pg"
 	"github.com/go-pg/pg/orm"
 	"github.com/pkg/errors"
-	"github.com/rs/zerolog"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
 
@@ -55,7 +54,7 @@ func createPgContainer(t *testing.T, user, pass, dbName string) testcontainers.C
 }
 
 func initDb(t *testing.T) (*pg.DB, testcontainers.Container) {
-	cfg := models.Database{
+	cfg := models.DatabaseConfig{
 		Host:     "localhost",
 		User:     "test",
 		DbName:   "tododb",
@@ -99,7 +98,6 @@ func TestGetTodo_ValidEmptyResponse(t *testing.T) {
 
 	dbMock := &mocks.DatabaseClient{}
 	todoStore := Store{
-		logger:   zerolog.New(os.Stdout),
 		pgClient: dbMock,
 	}
 

@@ -2,8 +2,7 @@ package server
 
 import (
 	"context"
-	"fmt"
-	"net/http"
+	"os"
 	"sync"
 	"time"
 
@@ -13,10 +12,12 @@ import (
 	"github.com/alexsniffin/go-api-starter/internal/todo-api/clients/postgres"
 	todoHandler "github.com/alexsniffin/go-api-starter/internal/todo-api/handlers/todo"
 	"github.com/alexsniffin/go-api-starter/internal/todo-api/models"
+	"github.com/alexsniffin/go-api-starter/internal/todo-api/processes/http"
 	"github.com/alexsniffin/go-api-starter/internal/todo-api/router"
 	"github.com/alexsniffin/go-api-starter/internal/todo-api/store/todo"
 )
 
+// Server handles the runtime of the application.
 type Server struct {
 	cfg    models.Config
 	logger zerolog.Logger
@@ -24,10 +25,11 @@ type Server struct {
 	httpServer *http.Server
 	pgClient   postgres.Client
 
-	shutdown sync.Once
+	fatalErrCh chan error
+	shutdown   sync.Once
 }
 
-// Creates a new server instance with dependencies
+// NewServer creates a new server instance with dependencies.
 func NewServer(cfg models.Config, logger zerolog.Logger) *Server {
 	// set up pg client
 	newPgClient, err := postgres.NewClient(logger, cfg.Database)
@@ -36,33 +38,36 @@ func NewServer(cfg models.Config, logger zerolog.Logger) *Server {
 	}
 
 	// set up store and handler
-	newTodoStore := todo.NewStore(logger, newPgClient)
+	newTodoStore := todo.NewStore(newPgClient)
 	newTodoHandler := todoHandler.NewHandler(logger, render.New(), newTodoStore)
 
-	// set up router and middleware
-	r := router.NewRouter(logger, newTodoHandler)
-
-	newHttpServer := &http.Server{
-		Addr:    fmt.Sprint(":", cfg.HttpServer.Port),
-		Handler: r,
-	}
+	// set up router and HTTP server
+	newRouter := router.NewRouter(cfg.HTTPRouter, logger, newTodoHandler)
+	newHTTPServer := http.NewServer(cfg.HTTPServer, logger, newRouter)
 
 	return &Server{
-		cfg:    cfg,
-		logger: logger,
-
-		httpServer: newHttpServer,
+		cfg:        cfg,
+		logger:     logger,
+		httpServer: newHTTPServer,
 		pgClient:   newPgClient,
+		fatalErrCh: make(chan error),
 	}
 }
 
-// Starts all asynchronous processes the server
+// Start invokes all asynchronous server processes.
 func (s *Server) Start() {
-	go s.StartHTTPServer()
+	go s.httpServer.Start(s.fatalErrCh)
+
+	for err := range s.fatalErrCh {
+		if err != nil {
+			s.logger.Error().Caller().Err(err).Msg("fatal error received from process")
+			s.Shutdown(true)
+		}
+	}
 }
 
-// Signals shutdown across the server
-func (s *Server) Shutdown() {
+// Shutdown signals the shutdown process across all processes in the server.
+func (s *Server) Shutdown(fromErr bool) {
 	s.shutdown.Do(func() {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
@@ -96,19 +101,12 @@ func (s *Server) Shutdown() {
 			s.logger.Info().Msg("shutdown postgres gracefully")
 		}
 
+		close(s.fatalErrCh)
 		close(graceful)
+
+		if fromErr {
+			s.logger.Info().Msg("graceful shutdown succeeded, an error was detected, exiting with status code 1")
+			os.Exit(1)
+		}
 	})
-}
-
-// Starts HTTP server
-func (s *Server) StartHTTPServer() {
-	s.logger.Info().Msg(fmt.Sprint("running server on 0.0.0.0:", s.cfg.HttpServer.Port))
-
-	err := s.httpServer.ListenAndServe()
-	if err != http.ErrServerClosed {
-		s.logger.Panic().Caller().Err(err).Msg("http server stopped unexpected")
-		s.Shutdown()
-	} else {
-		s.logger.Info().Msg("http server stopped")
-	}
 }
