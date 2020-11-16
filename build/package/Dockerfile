@@ -6,7 +6,7 @@ FROM golang:1.15-alpine AS builder
 ARG SERVICE
 ENV CI=true
 
-RUN apk update && apk upgrade
+RUN apk update && apk upgrade && apk --no-cache add curl
 
 # Install latest gcc
 RUN apk add build-base
