@@ -16,8 +16,7 @@ COPY . $GOPATH/src/github.com/alexsniffin/go-starter.git/
 WORKDIR $GOPATH/src/github.com/alexsniffin/go-starter.git/cmd/$SERVICE/
 
 # Pull dependencies
-RUN go get github.com/golangci/golangci-lint/cmd/golangci-lint \
-    && go install github.com/golangci/golangci-lint/cmd/golangci-lint
+RUN curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.31.0
 
 # Run quality check
 RUN golangci-lint run \
