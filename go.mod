@@ -13,7 +13,7 @@ require (
 	github.com/onsi/ginkgo v1.12.0 // indirect
 	github.com/onsi/gomega v1.9.0 // indirect
 	github.com/pkg/errors v0.9.1
-	github.com/prometheus/client_golang v1.6.0
+	github.com/prometheus/client_golang v1.11.1
 	github.com/rs/zerolog v1.19.0
 	github.com/slok/go-http-metrics v0.8.0
 	github.com/spf13/viper v1.4.0
@@ -21,6 +21,6 @@ require (
 	github.com/testcontainers/testcontainers-go v0.7.0
 	github.com/unrolled/render v1.0.1
 	github.com/urfave/negroni v1.0.0
-	golang.org/x/net v0.0.0-20200226121028-0de0cce0169b
+	golang.org/x/net v0.0.0-20200625001655-4c5254603344
 	mellium.im/sasl v0.2.1 // indirect
 )
