@@ -21,6 +21,6 @@ require (
 	github.com/testcontainers/testcontainers-go v0.7.0
 	github.com/unrolled/render v1.0.1
 	github.com/urfave/negroni v1.0.0
-	golang.org/x/net v0.0.0-20200226121028-0de0cce0169b
+	golang.org/x/net v0.7.0
 	mellium.im/sasl v0.2.1 // indirect
 )
